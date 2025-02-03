@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 
@@ -73,7 +74,11 @@ public class PaymentValidationService {
             failWaitingPayments(completedPayment.getSeat().getId());
         } else if (completedPayment.getStatus() == PaymentStatus.FAILED) {
             Payment nextPayment = findNextWaitingPayment(completedPayment.getSeat().getId());
-            if (nextPayment != null) {
+            if (ObjectUtils.isEmpty(nextPayment)) {
+                log.info("There is no waiting payment for the seat. Seat Id={} will remain {}.",
+                        completedPayment.getSeat().getId(),
+                        completedPayment.getSeat().getStatus());
+            } else {
                 log.info("Next WAITING payment found => Id={}, Publishing PaymentValidationEvent...", nextPayment.getId());
                 nextPayment.setStatus(PaymentStatus.PENDING);
                 eventPublisher.publishEvent(new PaymentValidationEvent(nextPayment));
