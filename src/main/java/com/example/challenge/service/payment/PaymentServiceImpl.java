@@ -89,11 +89,10 @@ public class PaymentServiceImpl implements PaymentService {
      */
     private Seat lockAndValidateSeat(Long seatId, BigDecimal requestedPrice) {
 
-        Seat seat = seatRepository.lockSeatForUpdate(seatId);
+        Seat seat = seatRepository.findById(seatId).orElseThrow(
+                () -> new BusinessException("business.error.seat_not_found", HttpStatus.NOT_FOUND)
+        );
 
-        if (seat == null) {
-            throw new BusinessException("business.error.seat_not_found", HttpStatus.NOT_FOUND);
-        }
         if (seat.getStatus() != SeatStatus.AVAILABLE) {
             throw new BusinessException("business.error.seat_not_available_for_purchase", HttpStatus.CONFLICT);
         }

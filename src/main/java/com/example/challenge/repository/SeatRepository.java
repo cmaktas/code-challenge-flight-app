@@ -16,11 +16,4 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 
     int countByFlightId(Long flightId);
 
-    @Lock(LockModeType.PESSIMISTIC_READ)
-    @QueryHints({
-            @QueryHint(name = "javax.persistence.lock.timeout", value = "5000")
-    })
-    @Query("SELECT s FROM Seat s WHERE s.id = :seatId")
-    Seat lockSeatForUpdate(@Param("seatId") Long seatId);
-
 }
