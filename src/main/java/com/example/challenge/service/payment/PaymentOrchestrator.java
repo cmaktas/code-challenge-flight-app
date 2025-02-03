@@ -20,14 +20,14 @@ public class PaymentOrchestrator {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePaymentReceivedEvent(PaymentReceivedEvent event) {
-        log.info("[Payment Orchestrator] Event: PAYMENT RECEIVED => Payment Id={}, Price={}",
+        log.info("Event: PaymentReceivedEvent => Payment Id={}, Price={}",
                 event.getPayment().getId(), event.getPayment().getPrice());
         paymentValidationService.validatePayment(event);
     }
 
     @EventListener
     public void handlePaymentValidatedEvent(PaymentValidationEvent event) {
-        log.info("[Payment Orchestrator] Event: PAYMENT VALIDATED => Payment ID={}, Price={}, Status={}",
+        log.info("Event: PaymentValidationEvent => Payment ID={}, Price={}, Status={}",
                 event.getPayment().getId(), event.getPayment().getPrice(), event.getPayment().getStatus());
         if (event.getPayment().getStatus() == PaymentStatus.FAILED
                 || event.getPayment().getStatus() == PaymentStatus.WAITING) {
@@ -42,7 +42,7 @@ public class PaymentOrchestrator {
 
     @EventListener
     public void handlePaymentProcessCompletedEvent(PaymentProcessEvent event) {
-        log.info("[Payment Orchestrator] Event: PAYMENT PROCESS => Payment ID={}, Status={}",
+        log.info("Event: PaymentProcessEvent => Payment ID={}, Status={}",
                 event.getProceedPayment().getId(), event.getProceedPayment().getStatus());
         paymentRecorderService.updatePaymentStatus(
                 event.getProceedPayment().getId(),

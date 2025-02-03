@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class PaymentRecorderService {
     /**
      * Creates a PENDING payment and publishes an event.
      */
-    @Transactional
+    @Transactional(propagation = REQUIRES_NEW)
     public Payment createPendingPayment(Seat seat, BigDecimal price) {
         Payment pendingPayment = paymentRepository.save(Payment.builder()
                 .createdAt(LocalDateTime.now())
@@ -36,7 +38,7 @@ public class PaymentRecorderService {
                 .price(price)
                 .status(PaymentStatus.PENDING)
                 .build());
-        log.info("[Payment Recorder Service] Created PENDING Payment Id={} for Seat Id={}", pendingPayment.getId(), seat.getId());
+        log.info("Created PENDING Payment Id={} for Seat Id={}", pendingPayment.getId(), seat.getId());
         eventPublisher.publishEvent(new PaymentReceivedEvent(pendingPayment));
         return pendingPayment;
     }
@@ -44,15 +46,15 @@ public class PaymentRecorderService {
     /**
      * Update the payment status and seat availability.
      */
-    @Transactional
+    @Transactional(propagation = REQUIRES_NEW)
     public void updatePaymentStatus(Long paymentId, PaymentStatus status) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalStateException("Payment not found: " + paymentId));
         payment.setStatus(status);
         Payment updatedPayment = paymentRepository.save(payment);
-        log.info("[Payment Recorder Service] Updated Payment Id={} to Status={}", updatedPayment.getId(), updatedPayment.getStatus());
+        log.info("Updated Payment Id={} to Status={}", updatedPayment.getId(), updatedPayment.getStatus());
         if (status == PaymentStatus.SUCCESS) {
-            log.info("[Payment Recorder Service] Payment Id={} Bank Call is:{}. Updating Seat Id={} to UNAVAILABLE",
+            log.info("Payment Id={} Bank Call is:{}. Updating Seat Id={} to UNAVAILABLE",
                     updatedPayment.getId(),
                     updatedPayment.getStatus(),
                     updatedPayment.getSeat().getId());

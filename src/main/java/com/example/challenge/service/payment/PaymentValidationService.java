@@ -51,7 +51,7 @@ public class PaymentValidationService {
             return;
         }
 
-        log.info("[Payment Validation Service] Payment ID={} is validated => publish PaymentValidatedEvent", payment.getId());
+        log.info("Payment ID={} is validated => publish PaymentValidatedEvent", payment.getId());
         eventPublisher.publishEvent(new PaymentValidationEvent(payment));
     }
 
@@ -64,7 +64,7 @@ public class PaymentValidationService {
      */
     @Transactional
     public void checkWaitingPayments(Payment completedPayment) {
-        log.info("[Payment Validation Service] Payment Id={} for Seat Id={} Status is={}. {}.",
+        log.info("Payment Id={} for Seat Id={} Status is={}. {}.",
                 completedPayment.getId(),
                 completedPayment.getSeat().getId(),
                 completedPayment.getStatus(),
@@ -74,7 +74,7 @@ public class PaymentValidationService {
         } else if (completedPayment.getStatus() == PaymentStatus.FAILED) {
             Payment nextPayment = findNextWaitingPayment(completedPayment.getSeat().getId());
             if (nextPayment != null) {
-                log.info("[Payment Validation Service] Next WAITING payment found => Id={}, Publishing PaymentValidationEvent...", nextPayment.getId());
+                log.info("Next WAITING payment found => Id={}, Publishing PaymentValidationEvent...", nextPayment.getId());
                 nextPayment.setStatus(PaymentStatus.PENDING);
                 eventPublisher.publishEvent(new PaymentValidationEvent(nextPayment));
             }
@@ -89,7 +89,7 @@ public class PaymentValidationService {
      */
     private boolean isSeatUnavailable(Seat seat, Payment payment) {
         if (seat.getStatus() != SeatStatus.AVAILABLE) {
-            log.info("[Payment Validation Service] Seat Id={} is already UNAVAILABLE => Payment Id={} fails immediately",
+            log.info("Seat Id={} is already UNAVAILABLE => Payment Id={} fails immediately",
                     payment.getSeat().getId(),
                     payment.getId());
             payment.setStatus(PaymentStatus.FAILED);
@@ -107,7 +107,7 @@ public class PaymentValidationService {
      */
     private boolean hasSuccessfulPayment(Seat seat, Payment payment) {
         if (paymentRepository.existsBySeatIdAndStatus(seat.getId(), PaymentStatus.SUCCESS)) {
-            log.info("[Payment Validation Service] Another SUCCESS payment found for Seat Id={}, Payment Id={} fails",
+            log.info("Another SUCCESS payment found for Seat Id={}, Payment Id={} fails",
                     payment.getSeat().getId(),
                     payment.getId());
             payment.setStatus(PaymentStatus.FAILED);
@@ -127,7 +127,7 @@ public class PaymentValidationService {
         if (paymentRepository.existsBySeatIdAndOlderPending(
                 seat.getId(),
                 payment.getCreatedAt())) {
-            log.info("[Payment Validation Service] Older PENDING/WAITING payment exists for Seat Id={}. Mark Payment Id={} as WAITING",
+            log.info("Older PENDING/WAITING payment exists for Seat Id={}. Mark Payment Id={} as WAITING",
                     payment.getSeat().getId(),
                     payment.getId());
             payment.setStatus(PaymentStatus.WAITING);
@@ -145,7 +145,7 @@ public class PaymentValidationService {
         for (Payment w : waitingPayments) {
             w.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(w);
-            log.info("[Payment Validation Service] Payment Id={} Status is moved from WAITING => FAILED because seat is sold", w.getId());
+            log.info("Payment Id={} Status is moved from WAITING => FAILED because seat is sold", w.getId());
         }
     }
 

@@ -38,7 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse purchaseSeat(PaymentRequest paymentRequest) {
         Seat seat = lockAndValidateSeat(paymentRequest.getSeatId(), paymentRequest.getPrice());
         Payment payment = paymentRecorderService.createPendingPayment(seat, paymentRequest.getPrice());
-        log.info("Seat ID={} purchase initiated. Payment ID={} is PENDING. Bank call will happen async.",
+        log.info("Seat Id={} purchase initiated. Payment Id={} is PENDING. Bank call will happen async.",
                 paymentRequest.getSeatId(), payment.getId());
         return PaymentResponse.builder()
                 .status(payment.getStatus().toString())
