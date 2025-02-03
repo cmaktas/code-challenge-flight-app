@@ -30,7 +30,7 @@ public class PaymentRecorderService {
     /**
      * Creates a PENDING payment and publishes an event.
      */
-    @Transactional(propagation = REQUIRES_NEW)
+    @Transactional
     public Payment createPendingPayment(Seat seat, BigDecimal price) {
         Payment pendingPayment = paymentRepository.save(Payment.builder()
                 .createdAt(LocalDateTime.now())
