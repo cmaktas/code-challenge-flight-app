@@ -23,7 +23,7 @@ public class BankService {
             Thread.sleep(getRandomDelay());
 
             // Simulate a rare timeout exception
-            if (random.nextInt(100) < 100) {
+            if (random.nextInt(100) < 10) {
                 log.error("Timeout occurred while processing payment.");
                 throw new RuntimeException("Bank Service Timeout");
             }
