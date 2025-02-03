@@ -56,7 +56,7 @@ class PaymentServiceImplIntegrationTest {
     }
 
     @Test
-    void testIntegrationWithIyzicoPaymentService() {
+    void testIntegrationWithPaymentService() {
         // Arrange
         Flight flight = createFlight();
         Seat seat = createSeat(flight, SeatStatus.AVAILABLE, BigDecimal.valueOf(100.00));
