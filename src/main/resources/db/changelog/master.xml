@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!--=============================================================================================================-->
+    <!-- Create Flight Table -->
+    <changeSet id="create_flight_table_2024_11_23" author="cem.aktas">
+        <createTable tableName="flight" remarks="Table to store flight information.">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="flight_number" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="origin" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="destination" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="departure_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="arrival_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="seat_capacity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!--=============================================================================================================-->
+    <!-- Create Seat Table -->
+    <changeSet id="create_seat_table_2024_11_23" author="cem.aktas">
+        <createTable tableName="seat" remarks="Table to store seat information.">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="version" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="seat_number" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="flight_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <!-- Foreign key constraint for flight_id referencing Flight table -->
+        <addForeignKeyConstraint
+                baseTableName="seat"
+                baseColumnNames="flight_id"
+                constraintName="fk_seat_flight"
+                referencedTableName="flight"
+                referencedColumnNames="id"/>
+    </changeSet>
+
+    <!--=============================================================================================================-->
+    <!-- Create Payment Table -->
+    <changeSet id="create_payment_table_2024_11_23" author="cem.aktas">
+        <createTable tableName="payment" remarks="Table to store payment information.">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="seat_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="DECIMAL(30,8)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <!-- Foreign key constraint for seat_id referencing Seat table -->
+        <addForeignKeyConstraint baseTableName="payment"
+                                 baseColumnNames="seat_id"
+                                 constraintName="fk_payment_seat"
+                                 referencedTableName="seat"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>

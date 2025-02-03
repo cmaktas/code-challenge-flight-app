@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: root
+    password: pass
+  liquibase:
+    change-log: classpath:db/changelog/master.xml
+    enabled: true
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
