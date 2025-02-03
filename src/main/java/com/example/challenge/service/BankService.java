@@ -24,7 +24,7 @@ public class BankService {
 
             // Simulate a rare timeout exception
             if (random.nextInt(100) < 100) {
-                log.error("[Bank] Timeout occurred while processing payment.");
+                log.error("Timeout occurred while processing payment.");
                 throw new RuntimeException("Bank Service Timeout");
             }
 
@@ -32,10 +32,10 @@ public class BankService {
             boolean isSuccessful = random.nextInt(100) >= 30; // 70% success, 30% failure
             String responseCode = isSuccessful ? BankResponseCode.SUCCESS.getCode() : BankResponseCode.FAILED.getCode();
 
-            log.info("[Bank] Payment processing completed. Response Code: {}", responseCode);
+            log.info("Payment processing completed. Response Code: {}", responseCode);
             return new BankPaymentResponse(responseCode);
         } catch (InterruptedException e) {
-            log.error("[Bank] Thread was interrupted during bank processing.", e);
+            log.error("Thread was interrupted during bank processing.", e);
             Thread.currentThread().interrupt();
             return new BankPaymentResponse(BankResponseCode.FAILED.getCode());
         }
