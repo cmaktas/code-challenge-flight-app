@@ -1,6 +1,6 @@
-# iyzico coding challenge
+# flight-app code challenge
 
-Thank you for applying to work in Iyzico Engineering.
+Thank you for applying to work in ***** Engineering.
 
 As part of our interview process, we expect you to complete a coding challenge in order for us to understand your coding skills. 
 The challenge is a Java11 + Spring Boot project which uses H2 as the database.
@@ -8,7 +8,7 @@ The challenge is a Java11 + Spring Boot project which uses H2 as the database.
 
 # Question 1: Flight Booking System
 
-Most of iyzico's merchants sell products or services online. Flight ticket is one of these services.
+Most of the merchants sell products or services online. Flight ticket is one of these services.
 For flight booking system the necessary REST services are listed below. We kindly ask you to implement them.
 
 ## Requirements
@@ -22,13 +22,12 @@ For flight booking system the necessary REST services are listed below. We kindl
 * No front end is necessary.
 * Test coverage for the implemented service should be above 80%. We expect both Integration and unit tests.
 * We expect Production Grade solution
-* Bonus: Iyzico payment integration can be implemented for payment step. 
-Reference: [https://dev.iyzipay.com/](https://dev.iyzipay.com/)
+* Bonus: ****** payment integration can be implemented for payment step.
 
 
 # Question 2 : Latency Management
 
-Iyzico provides its payment service by calling bank endpoints. The bank responses are persisted to database.In [IyzicoPaymentServiceTest.java](src/test/java/com/iyzico/challenge/service/IyzicoPaymentServiceTest.java)
+***** provides its payment service by calling bank endpoints. The bank responses are persisted to database.In [PaymentServiceTest.java]
 class we have simulated 100 customers calling the payment service.
 
 ```java
@@ -47,7 +46,7 @@ class we have simulated 100 customers calling the payment service.
     }
 ```
 
-In the simulation for some reason the bank response times take ~5 seconds. Due to this latency, a database connection problem is encountered after some time. (Running the [IyzicoPaymentServiceTest.java](src/test/java/com/iyzico/challenge/service/IyzicoPaymentServiceTest.java)
+In the simulation for some reason the bank response times take ~5 seconds. Due to this latency, a database connection problem is encountered after some time. (Running the [PaymentServiceTest.java]
 class displays "Connection is not available, request timed out after 30005ms." error after some time.)
 
 Find a way to persist bank responses to the database in this situation.
@@ -55,7 +54,7 @@ Find a way to persist bank responses to the database in this situation.
 ## Requirements
 
 * DB connection pool must stay the same.
-* DatabaseConfiguration.java, BankService.java, PaymentServiceClients.java and IyzicoPaymentServiceTest.java classes must not be changed.
+* DatabaseConfiguration.java, BankService.java, PaymentServiceClients.java and PaymentServiceTest.java classes must not be changed.
 * In case of an error, there must not be any inconsistent data in the database.
 
 
