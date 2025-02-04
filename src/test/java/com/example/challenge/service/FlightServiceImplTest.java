@@ -5,7 +5,7 @@ import com.example.challenge.domain.entity.Seat;
 import com.example.challenge.domain.enums.SeatStatus;
 import com.example.challenge.infrastructure.exception.BusinessException;
 import com.example.challenge.mapper.FlightMapper;
-import com.example.challenge.repository.FlightRepository;
+import com.example.challenge.repository.FlightDao;
 import com.example.challenge.repository.SeatRepository;
 import com.example.challenge.web.model.v1.request.CreateFlightRequest;
 import com.example.challenge.web.model.v1.request.UpdateFlightRequest;
@@ -19,9 +19,10 @@ import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 class FlightServiceImplTest {
@@ -30,7 +31,7 @@ class FlightServiceImplTest {
     private FlightServiceImpl flightService;
 
     @Mock
-    private FlightRepository flightRepository;
+    private FlightDao flightDao;
 
     @Mock
     private SeatRepository seatRepository;
@@ -58,7 +59,7 @@ class FlightServiceImplTest {
         flight.setId(1L);
 
         when(flightMapper.mapToFlight(request)).thenReturn(flight);
-        when(flightRepository.save(any(Flight.class))).thenReturn(flight);
+        when(flightDao.saveFlight(any(Flight.class))).thenReturn(flight);
         when(flightMapper.mapToFlightResponse(flight)).thenReturn(new FlightResponse());
 
         // Act
@@ -67,7 +68,7 @@ class FlightServiceImplTest {
         // Assert
         assertNotNull(response);
         verify(flightMapper).mapToFlight(request);
-        verify(flightRepository).save(any(Flight.class));
+        verify(flightDao).saveFlight(any(Flight.class));
     }
 
     @Test
@@ -79,13 +80,13 @@ class FlightServiceImplTest {
         seat.setStatus(SeatStatus.AVAILABLE);
         flight.setSeats(List.of(seat));
 
-        when(flightRepository.findByIdWithSeats(flightId)).thenReturn(Optional.of(flight));
+        when(flightDao.getFlightById(flightId)).thenReturn(flight);
 
         // Act
         flightService.removeFlight(flightId);
 
         // Assert
-        verify(flightRepository).deleteById(flightId);
+        verify(flightDao).deleteFlightById(flightId);
     }
 
     @Test
@@ -97,7 +98,7 @@ class FlightServiceImplTest {
         seat.setStatus(SeatStatus.UNAVAILABLE);
         flight.setSeats(List.of(seat));
 
-        when(flightRepository.findByIdWithSeats(flightId)).thenReturn(Optional.of(flight));
+        when(flightDao.getFlightById(flightId)).thenReturn(flight);
 
         // Act & Assert
         BusinessException exception = assertThrows(BusinessException.class, () -> flightService.removeFlight(flightId));
@@ -118,14 +119,15 @@ class FlightServiceImplTest {
         request.setSeatPrice(BigDecimal.valueOf(300.00));
 
         Flight flight = new Flight();
+        // Create a flight with an available seat and a different seat capacity
         Seat seat = new Seat();
         seat.setStatus(SeatStatus.AVAILABLE);
         flight.setSeats(List.of(seat));
         flight.setSeatCapacity(50);
 
-        when(flightRepository.findByIdWithSeats(flightId)).thenReturn(Optional.of(flight));
+        when(flightDao.getFlightById(flightId)).thenReturn(flight);
         doNothing().when(seatRepository).deleteAll(anyList());
-        when(flightRepository.save(flight)).thenReturn(flight);
+        when(flightDao.saveFlight(flight)).thenReturn(flight);
         when(flightMapper.mapToFlightResponse(flight)).thenReturn(new FlightResponse());
 
         // Act
@@ -133,7 +135,7 @@ class FlightServiceImplTest {
 
         // Assert
         assertNotNull(response);
-        verify(flightRepository).save(flight);
+        verify(flightDao).saveFlight(flight);
         verify(seatRepository).deleteAll(anyList());
     }
 
@@ -143,7 +145,7 @@ class FlightServiceImplTest {
         Flight flight = new Flight();
         flight.setDepartureTime(LocalDateTime.now().plusDays(1));
 
-        when(flightRepository.findAllWithSeats()).thenReturn(List.of(flight));
+        when(flightDao.getAllFlightsWithSeats()).thenReturn(List.of(flight));
         when(flightMapper.mapToFlightDetailsResponse(flight)).thenReturn(new FlightDetailsResponse());
 
         // Act
@@ -151,7 +153,7 @@ class FlightServiceImplTest {
 
         // Assert
         assertEquals(1, flights.size());
-        verify(flightRepository).findAllWithSeats();
+        verify(flightDao).getAllFlightsWithSeats();
     }
 
     @Test
@@ -160,7 +162,7 @@ class FlightServiceImplTest {
         Long flightId = 1L;
         Flight flight = new Flight();
 
-        when(flightRepository.findByIdWithSeats(flightId)).thenReturn(Optional.of(flight));
+        when(flightDao.getFlightById(flightId)).thenReturn(flight);
         when(flightMapper.mapToFlightDetailsResponse(flight)).thenReturn(new FlightDetailsResponse());
 
         // Act
@@ -168,7 +170,7 @@ class FlightServiceImplTest {
 
         // Assert
         assertNotNull(response);
-        verify(flightRepository).findByIdWithSeats(flightId);
+        verify(flightDao).getFlightById(flightId);
     }
 
     @Test
@@ -176,7 +178,8 @@ class FlightServiceImplTest {
         // Arrange
         Long flightId = 1L;
 
-        when(flightRepository.findByIdWithSeats(flightId)).thenReturn(Optional.empty());
+        when(flightDao.getFlightById(flightId))
+                .thenThrow(new BusinessException("business.error.flight_not_found", HttpStatus.NOT_FOUND));
 
         // Act & Assert
         BusinessException exception = assertThrows(BusinessException.class, () -> flightService.getFlightDetails(flightId));

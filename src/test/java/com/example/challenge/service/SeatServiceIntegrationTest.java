@@ -21,7 +21,10 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "spring.datasource.hikari.pool-name=my-db-pool",
+        "spring.datasource.hikari.maximum-pool-size=5"
+})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
 class SeatServiceIntegrationTest {

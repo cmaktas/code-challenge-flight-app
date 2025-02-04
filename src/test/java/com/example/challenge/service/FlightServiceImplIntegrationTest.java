@@ -22,7 +22,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "spring.datasource.hikari.pool-name=my-db-pool",
+        "spring.datasource.hikari.maximum-pool-size=5"
+})
 @Transactional
 class FlightServiceImplIntegrationTest {
 
