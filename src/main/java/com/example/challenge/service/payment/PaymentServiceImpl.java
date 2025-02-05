@@ -99,7 +99,7 @@ public class PaymentServiceImpl implements PaymentService {
         if (paymentRepository.existsBySeatIdAndStatus(seatId, PaymentStatus.SUCCESS)) {
             throw new BusinessException("business.error.seat_not_available_for_purchase", HttpStatus.CONFLICT);
         }
-        if (!seat.getPrice().equals(requestedPrice)) {
+        if (seat.getPrice().compareTo(requestedPrice) != 0) {
             throw new BusinessException("business.error.seat_price_mismatch", HttpStatus.BAD_REQUEST);
         }
 
