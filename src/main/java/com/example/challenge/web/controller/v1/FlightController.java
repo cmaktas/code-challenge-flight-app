@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,11 +53,11 @@ public class FlightController {
         return ResponseEntity.ok(flightService.updateFlight(id, request));
     }
 
-    @Operation(summary = "List all flights", description = "Fetches a list of all flights, including detailed flight information and associated seat details.")
+    @Operation(summary = "List all flights", description = "Fetches a paginated list of all future flights, including detailed flight information and associated seat details.")
     @ApiResponse(responseCode = "200", description = "List of flights retrieved successfully")
     @GetMapping
-    public ResponseEntity<List<FlightDetailsResponse>> listFlights() {
-        return ResponseEntity.ok(flightService.listFlights());
+    public ResponseEntity<Page<FlightDetailsResponse>> listFlights(Pageable pageable) {
+        return ResponseEntity.ok(flightService.listFlights(pageable));
     }
 
     @Operation(summary = "Get flight details", description = "Fetches detailed information about a specific flight by its ID, including available and unavailable seats.")

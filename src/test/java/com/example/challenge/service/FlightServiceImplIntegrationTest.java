@@ -13,6 +13,9 @@ import com.example.challenge.web.model.v1.response.FlightResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -165,18 +168,17 @@ class FlightServiceImplIntegrationTest {
         assertEquals("1", response.getAvailableSeats().get(0).getSeatNumber());
     }
 
-
     @Test
-    void listFlights_ShouldReturnFutureFlights() {
-        // Arrange
+    void listFlights_ShouldReturnPaginatedFutureFlights() {
+        // Arrange: Create two flights that depart in the future.
         Flight flight1 = new Flight();
         flight1.setOrigin("New York");
         flight1.setDestination("London");
         flight1.setDepartureTime(LocalDateTime.now().plusDays(1));
         flight1.setArrivalTime(LocalDateTime.now().plusDays(2));
         flight1.setSeatCapacity(10);
-        flight1.setFlightNumber(FlightUtils.generateFlightNumber(flight1.getOrigin(), flight1.getDestination()));
-        flight1.setSeats(new ArrayList<>()); // Explicit initialization
+        flight1.setFlightNumber(FlightUtils.generateFlightNumber("New York", "London"));
+        flight1.setSeats(new ArrayList<>());
 
         Flight flight2 = new Flight();
         flight2.setOrigin("Paris");
@@ -184,19 +186,19 @@ class FlightServiceImplIntegrationTest {
         flight2.setDepartureTime(LocalDateTime.now().plusDays(3));
         flight2.setArrivalTime(LocalDateTime.now().plusDays(4));
         flight2.setSeatCapacity(20);
-        flight2.setFlightNumber(FlightUtils.generateFlightNumber(flight2.getOrigin(), flight2.getDestination()));
-        flight2.setSeats(new ArrayList<>()); // Explicit initialization
+        flight2.setFlightNumber(FlightUtils.generateFlightNumber("Paris", "Berlin"));
+        flight2.setSeats(new ArrayList<>());
 
         flightRepository.saveAllAndFlush(List.of(flight1, flight2));
 
-        // Act
-        List<FlightDetailsResponse> flights = flightService.listFlights();
+        // Create a pageable request for the first page (0) with 10 items per page.
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("departureTime").ascending());
 
-        // Assert
-        assertEquals(2, flights.size());
-        assertEquals("New York", flights.get(0).getFlight().getOrigin());
-        assertEquals("Paris", flights.get(1).getFlight().getOrigin());
+        var page = flightService.listFlights(pageable);
+        assertEquals(2, page.getTotalElements());
+        // Optionally, assert on the ordering if your mapper returns flight details accordingly.
+        assertEquals("New York", page.getContent().get(0).getFlight().getOrigin());
+        assertEquals("Paris", page.getContent().get(1).getFlight().getOrigin());
     }
-
 
 }

@@ -14,6 +14,9 @@ import com.example.challenge.web.model.v1.request.UpdateFlightRequest;
 import com.example.challenge.web.model.v1.response.FlightResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -128,15 +131,25 @@ public class FlightServiceImpl implements FlightService {
      * @return a list of flight details responses
      */
     @Override
-    public List<FlightDetailsResponse> listFlights() {
-        log.debug("Fetching list of future flights");
+    public Page<FlightDetailsResponse> listFlights(Pageable pageable) {
+        log.debug("Fetching list of future flights with pagination: {}", pageable);
         LocalDateTime now = LocalDateTime.now();
-        List<FlightDetailsResponse> flights = flightDao.getAllFlightsWithSeats().stream()
+        List<Flight> allFlights = flightDao.getAllFlightsWithSeats();
+        // Filter to only future flights
+        List<Flight> futureFlights = allFlights.stream()
                 .filter(flight -> flight.getDepartureTime().isAfter(now))
+                .collect(Collectors.toList());
+        // Map to responses
+        List<FlightDetailsResponse> responses = futureFlights.stream()
                 .map(flightMapper::mapToFlightDetailsResponse)
                 .collect(Collectors.toList());
-        log.info("Fetched {} future flights", flights.size());
-        return flights;
+
+        int total = responses.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), total);
+        List<FlightDetailsResponse> paginatedList = start > end ? List.of() : responses.subList(start, end);
+
+        return new PageImpl<>(paginatedList, pageable, total);
     }
 
     /**

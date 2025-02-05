@@ -14,6 +14,9 @@ import com.example.challenge.web.model.v1.response.FlightResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
@@ -140,19 +143,21 @@ class FlightServiceImplTest {
     }
 
     @Test
-    void listFlights_ShouldReturnListOfFutureFlights() {
+    void listFlights_ShouldReturnPaginatedFutureFlights() {
         // Arrange
         Flight flight = new Flight();
         flight.setDepartureTime(LocalDateTime.now().plusDays(1));
-
+        FlightDetailsResponse details = new FlightDetailsResponse();
         when(flightDao.getAllFlightsWithSeats()).thenReturn(List.of(flight));
-        when(flightMapper.mapToFlightDetailsResponse(flight)).thenReturn(new FlightDetailsResponse());
+        when(flightMapper.mapToFlightDetailsResponse(flight)).thenReturn(details);
+
+        Pageable pageable = PageRequest.of(0, 10);
 
         // Act
-        List<FlightDetailsResponse> flights = flightService.listFlights();
+        Page<FlightDetailsResponse> page = flightService.listFlights(pageable);
 
         // Assert
-        assertEquals(1, flights.size());
+        assertEquals(1, page.getTotalElements());
         verify(flightDao).getAllFlightsWithSeats();
     }
 
