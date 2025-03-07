@@ -36,7 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public PaymentResponse purchaseSeat(PaymentRequest paymentRequest) {
-        Seat seat = lockAndValidateSeat(paymentRequest.getSeatId(), paymentRequest.getPrice());
+        Seat seat = validateSeat(paymentRequest.getSeatId(), paymentRequest.getPrice());
         Payment payment = paymentRecorderService.createPendingPayment(seat, paymentRequest.getPrice());
         log.info("Seat Id={} purchase initiated. Payment Id={} is PENDING. Bank call will happen async.",
                 paymentRequest.getSeatId(), payment.getId());
@@ -87,7 +87,7 @@ public class PaymentServiceImpl implements PaymentService {
     /**
      * Validates seat availability, checks pending payments, and verifies price.
      */
-    private Seat lockAndValidateSeat(Long seatId, BigDecimal requestedPrice) {
+    private Seat validateSeat(Long seatId, BigDecimal requestedPrice) {
 
         Seat seat = seatRepository.findById(seatId).orElseThrow(
                 () -> new BusinessException("business.error.seat_not_found", HttpStatus.NOT_FOUND)
